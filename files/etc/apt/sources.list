@@ -1,0 +1,3 @@
+deb http://mirror.psu.ac.th/debian trixie main contrib non-free non-free-firmware
+deb http://mirror.psu.ac.th/debian-security/ trixie-security main contrib non-free non-free-firmware
+deb http://mirror.psu.ac.th/debian trixie-updates main contrib non-free non-free-firmware

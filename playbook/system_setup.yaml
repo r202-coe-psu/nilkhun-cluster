@@ -1,0 +1,51 @@
+- name: Change hostname of Raspberry Pi devices
+  hosts: all
+  become: yes
+  tasks:
+    - name: Set hostname to {{ inventory_hostname }}
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: change hostname in /etc/hosts
+      ansible.builtin.replace:
+        path: /etc/hosts
+        regexp: 'raspberrypi'
+        replace: "{{ inventory_hostname }}"
+
+    - name: Add hosts in inventory to /etc/hosts
+      ansible.builtin.lineinfile:
+        dest: /etc/hosts
+        regexp: '.*{{ item }}$'
+        line: "{{ hostvars[item].ansible_host }} {{item}}"
+        state: present
+      when: hostvars[item].ansible_host is defined
+      with_items: "{{ groups.all }}" 
+
+    - name: Copy APT Source File
+      copy: 
+        src: "{{ inventory_dir }}/files/etc/apt/sources.list"
+        dest: /etc/apt/sources.list
+
+    - name: Update and upgrade the system
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Copy timedatectl configuration
+      copy:
+        src: "{{ inventory_dir }}/files/etc/systemd/timesyncd.conf"
+        dest: /etc/systemd/timesyncd.conf
+
+    - name: Setup time server
+      ansible.builtin.shell: |
+        timedatectl set-ntp true
+        timedatectl set-timezone Asia/Bangkok
+      ignore_errors: yes
+
+    - name: Reboot the system
+      ansible.builtin.reboot:
+        test_command: uptime
+        connect_timeout: 30
+        reboot_timeout: 300
+        post_reboot_delay: 60
+        pre_reboot_delay: 30

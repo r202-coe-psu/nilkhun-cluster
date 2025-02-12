@@ -1,0 +1,73 @@
+---
+- name: Setup NFS server on RPI cluster
+  hosts: nilkhan_master
+  become: yes
+  vars:
+    nfs_shared_dir: /srv/nfs/cluster
+    nfs_network: 10.0.1.0/24  # Adjust this to your network
+  tasks:
+    - name: Install NFS server package
+      apt:
+        name: nfs-kernel-server
+        state: present
+
+    - name: Create the shared directory
+      file:
+        path: "{{ nfs_shared_dir }}"
+        state: directory
+        owner: nobody
+        group: nogroup
+        mode: '0777'
+
+    - name: Configure NFS exports
+      lineinfile:
+        path: /etc/exports
+        state: present
+        line: "{{ nfs_shared_dir }} {{ nfs_network }}(rw,sync,no_root_squash,no_subtree_check)"
+
+    - name: Apply NFS export configuration
+      command: exportfs -ra
+
+    - name: Ensure NFS service is enabled and started
+      service:
+        name: nfs-kernel-server
+        state: started
+        enabled: yes
+
+- name: Setup NFS client on nilkhan-compute
+  hosts: nilkhan_compute
+  become: yes
+  vars:
+    nfs_shared_dir: /srv/nfs/cluster
+    nfs_mount_point: /mnt/nfs/cluster
+    nfs_server: nilkhan-master  # Adjust this to your NFS server hostname or IP
+  tasks:
+    - name: Install NFS client package
+      apt:
+        name: nfs-common
+        state: present
+
+    - name: Create mount point directory
+      file:
+        path: "{{ nfs_mount_point }}"
+        state: directory
+        owner: nobody
+        group: nogroup
+        mode: '0777'
+
+    - name: Mount NFS share
+      mount:
+        src: "{{ nfs_server }}:{{ nfs_shared_dir }}"
+        path: "{{ nfs_mount_point }}"
+        fstype: nfs
+        opts: rw,sync
+        state: mounted
+
+    - name: Ensure NFS share is mounted on boot
+      mount:
+        src: "{{ nfs_server }}:{{ nfs_shared_dir }}"
+        path: "{{ nfs_mount_point }}"
+        fstype: nfs
+        opts: rw,sync
+        state: present
+

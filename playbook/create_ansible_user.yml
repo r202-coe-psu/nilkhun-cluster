@@ -1,0 +1,43 @@
+---
+- name: Create user for Ansible configuration
+  hosts: all
+  become: yes
+  vars_prompt:
+    - name: "user_password"
+      prompt: "Enter the password"
+      private: yes
+  vars:
+    user_name: iac
+    user_keys: "{{ lookup('file', '{{ inventory_dir }}/ssh-key/nilkhan-cluster.pub') }}"
+  tasks:
+    - name: Ensure the user exists
+      user:
+        name: "{{ user_name }}"
+        password: "{{ user_password | password_hash('sha512') }}"
+        state: present
+        comment: "User for Ansible configuration"
+    - name: Ensure the user accepts the SSH key
+      authorized_key:
+        user: "{{ user_name }}"
+        key: "{{ user_keys }}"
+        state: present
+        
+    - name: Ensure sudo package is installed (RHEL Base)
+      yum:
+        name: sudo
+        state: present
+      when: ansible_os_family == 'RedHat'
+      
+    - name: Ensure sudo package is installed (Debian Base)
+      apt:
+        name: sudo
+        state: present
+      when: ansible_os_family == 'Debian'
+      
+    - name: Ensure the user is sudoer with no password required
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^{{ user_name }} ALL\='
+        line: '{{ user_name }} ALL=(ALL) NOPASSWD:ALL'
+        validate: 'visudo -cf %s'
