@@ -8,7 +8,9 @@
   tasks:
     - name: Install NFS server package
       apt:
-        name: nfs-kernel-server
+        name:
+          - nfs-kernel-server
+          - nfs-common
         state: present
 
     - name: Create the shared directory
@@ -33,8 +35,16 @@
         name: nfs-kernel-server
         state: started
         enabled: yes
+    
+    - name: Reboot the system
+      ansible.builtin.reboot:
+        test_command: uptime
+        connect_timeout: 30
+        reboot_timeout: 300
+        post_reboot_delay: 60
+        pre_reboot_delay: 30
 
-- name: Setup NFS client on nilkhan-compute
+- name: Install NFS client on nilkhan-compute
   hosts: nilkhan_compute
   become: yes
   vars:
@@ -46,6 +56,14 @@
       apt:
         name: nfs-common
         state: present
+
+- name: Setup NFS client on all Nodes
+  hosts: nilkhan_compute
+  become: yes
+  vars:
+    nfs_shared_dir: /srv/nfs/cluster
+    nfs_mount_point: /mnt/nfs/cluster
+    nfs_server: nilkhan-master  # Adjust this to your NFS server hostname or IP
 
     - name: Create mount point directory
       file:
@@ -70,4 +88,12 @@
         fstype: nfs
         opts: rw,sync
         state: present
+
+    - name: Reboot the system
+      ansible.builtin.reboot:
+        test_command: uptime
+        connect_timeout: 30
+        reboot_timeout: 300
+        post_reboot_delay: 60
+        pre_reboot_delay: 30
 

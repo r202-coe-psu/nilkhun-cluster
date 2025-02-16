@@ -2,10 +2,10 @@
 nilkhan-master ansible_host=10.0.1.10 
 
 [nilkhan_compute]
-nilkhan-node-01 ansible_host=10.0.1.21 ansible_user=pi ansible_ssh_pass=!q2w3e4r5t
-nilkhan-node-02 ansible_host=10.0.1.22 ansible_user=pi ansible_ssh_pass=!q2w3e4r5t
-nilkhan-node-03 ansible_host=10.0.1.23 ansible_user=pi ansible_ssh_pass=!q2w3e4r5t
-nilkhan-node-04 ansible_host=10.0.1.24 ansible_user=pi ansible_ssh_pass=!q2w3e4r5t
-nilkhan-node-05 ansible_host=10.0.1.25 ansible_user=pi ansible_ssh_pass=!q2w3e4r5t
-nilkhan-node-06 ansible_host=10.0.1.26 ansible_user=pi ansible_ssh_pass=!q2w3e4r5t
-nilkhan-node-07 ansible_host=10.0.1.27 ansible_user=pi ansible_ssh_pass=!q2w3e4r5t
+nilkhan-node-01 ansible_host=10.0.1.21
+nilkhan-node-02 ansible_host=10.0.1.22
+nilkhan-node-03 ansible_host=10.0.1.23
+nilkhan-node-04 ansible_host=10.0.1.24
+nilkhan-node-05 ansible_host=10.0.1.25
+nilkhan-node-06 ansible_host=10.0.1.26
+nilkhan-node-07 ansible_host=10.0.1.27

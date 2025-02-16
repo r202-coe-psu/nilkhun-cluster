@@ -1,0 +1,22 @@
+- name: Change hostname of Raspberry Pi devices
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update and upgrade the system
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install necessary packages
+      apt:
+        name:
+          - openmpi-bin
+          - openmpi-common
+          - libopenmpi-dev
+          - g++
+          - python3-mpi4py
+          - python3-numpy
+          - python3-scipy
+
+
+        state: present

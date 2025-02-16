@@ -4,7 +4,4 @@
   become: yes
   tasks:
     - name: Shutdown the system
-      command: /sbin/shutdown -h now
-      async: 1
-      poll: 0
-      ignore_errors: yes
+      command: /sbin/poweroff
