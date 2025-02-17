@@ -81,7 +81,18 @@
         owner: "{{ slurm_user }}"
         group: "{{ slurm_group }}"
         mode: '0444'
-      
+
+
+    - name: Update slurm.conf
+      lineinfile:
+        dest: "{{ slurm_conf_path }}"
+        line: |
+          {% for host in groups['all'] %}
+          NodeName={{ host }} CPUs=4 CoresPerSocket=4 Sockets=1
+          {% endfor %}
+          
+          PartitionName=nilkhan Nodes={{ groups['nilkhan_compute'] | join(',') }} Default=YES MaxTime=INFINITE State=UP
+
     - name: Deploy cgroup conf for slurm to all nodes
       copy:
         src: "{{ inventory_dir }}/files{{ cgroup_conf_path }}"
@@ -106,7 +117,7 @@
 
     - name: Reboot the system
       ansible.builtin.reboot:
-        # test_command: uptime
+        test_command: uptime
         # connect_timeout: 30
         # reboot_timeout: 300
         # post_reboot_delay: 10
